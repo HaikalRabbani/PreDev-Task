@@ -38,17 +38,7 @@
         </a>
     </li>
 
-    <hr class="sidebar-divider">
 
-    <div class="sidebar-heading">Laporan</div>
-
-    <!-- Tables -->
-    <li class="nav-item {{ request()->routeIs('tables') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('tables') }}">
-            <i class="fas fa-fw fa-table"></i>
-            <span>Tables</span>
-        </a>
-    </li>
 
     <hr class="sidebar-divider d-none d-md-block">
 

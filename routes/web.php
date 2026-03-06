@@ -36,11 +36,6 @@ Route::get('/users', [UserController::class, 'index'])
     ->middleware(['auth'])
     ->name('users.index');
 
-Route::get('/tables', function () {
-    return view('tables');
-})->middleware(['auth'])->name('tables');
-
-
 Route::get('/peserta', [PesertaController::class, 'index'])
     ->middleware(['auth'])
     ->name('peserta.index');
