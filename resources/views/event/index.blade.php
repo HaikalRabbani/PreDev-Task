@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Data Peserta')
+@section('title', 'Data Event')
 
 @push('styles')
 <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
@@ -9,9 +9,9 @@
 @section('content')
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Data Peserta</h1>
+    <h1 class="h3 mb-0 text-gray-800">Data Event</h1>
     <button class="btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#modalTambah">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Peserta
+        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Event
     </button>
 </div>
 
@@ -24,7 +24,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Tabel Peserta</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Tabel Event</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -32,47 +32,44 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Nama</th>
-                        <th>Alamat</th>
-                        <th>Jenis Kelamin</th>
-                        <th>Event</th>
+                        <th>Nama Event</th>
+                        <th>Deskripsi</th>
+                        <th>Tanggal</th>
+                        <th>Lokasi</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($peserta as $index => $item)
+                    @foreach($events as $index => $item)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $item->nama }}</td>
-                        <td>{{ $item->alamat }}</td>
+                        <td>{{ $item->nama_event }}</td>
+                        <td>{{ Str::limit($item->deskripsi, 50) }}</td>
+                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</td>
+                        <td>{{ $item->lokasi }}</td>
                         <td>
-                            @if($item->jk == 'L')
-                                <span class="badge badge-primary">Laki-laki</span>
+                            @if($item->status == 'Aktif')
+                                <span class="badge badge-success">Aktif</span>
                             @else
-                                <span class="badge badge-danger">Perempuan</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($item->event)
-                                <span class="badge badge-info">{{ $item->event->nama_event }}</span>
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
+                                <span class="badge badge-secondary">Selesai</span>
+                            @endif  
                         </td>
                         <td>
                             <button class="btn btn-sm btn-warning btn-edit"
                                 data-id="{{ $item->id }}"
-                                data-nama="{{ $item->nama }}"
-                                data-alamat="{{ $item->alamat }}"
-                                data-jk="{{ $item->jk }}"
-                                data-event_id="{{ $item->event_id }}"
+                                data-nama_event="{{ $item->nama_event }}"
+                                data-deskripsi="{{ $item->deskripsi }}"
+                                data-tanggal="{{ $item->tanggal }}"
+                                data-lokasi="{{ $item->lokasi }}"
+                                data-status="{{ $item->status }}"
                                 data-toggle="modal"
                                 data-target="#modalEdit">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
                             <button class="btn btn-sm btn-danger btn-hapus"
                                 data-id="{{ $item->id }}"
-                                data-nama="{{ $item->nama }}"
+                                data-nama="{{ $item->nama_event }}"
                                 data-toggle="modal"
                                 data-target="#modalHapus">
                                 <i class="fas fa-trash"></i> Hapus
@@ -91,35 +88,33 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-plus mr-2"></i>Tambah Peserta</h5>
+                <h5 class="modal-title"><i class="fas fa-plus mr-2"></i>Tambah Event</h5>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <form action="{{ route('peserta.store') }}" method="POST">
+            <form action="{{ route('event.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nama</label>
-                        <input type="text" name="nama" class="form-control" placeholder="Masukkan nama...">
+                        <label>Nama Event</label>
+                        <input type="text" name="nama_event" class="form-control" placeholder="Masukkan nama event...">
                     </div>
                     <div class="form-group">
-                        <label>Alamat</label>
-                        <textarea name="alamat" rows="3" class="form-control" placeholder="Masukkan alamat..."></textarea>
+                        <label>Deskripsi</label>
+                        <textarea name="deskripsi" rows="3" class="form-control" placeholder="Masukkan deskripsi..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Jenis Kelamin</label>
-                        <select name="jk" class="form-control">
-                            <option value="">-- Pilih Jenis Kelamin --</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
-                        </select>
+                        <label>Tanggal</label>
+                        <input type="date" name="tanggal" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Event</label>
-                        <select name="event_id" class="form-control">
-                            <option value="">-- Pilih Event --</option>
-                            @foreach($events as $event)
-                                <option value="{{ $event->id }}">{{ $event->nama_event }}</option>
-                            @endforeach
+                        <label>Lokasi</label>
+                        <input type="text" name="lokasi" class="form-control" placeholder="Masukkan lokasi...">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" class="form-control">
+                            <option value="aktif">Aktif</option>
+                            <option value="selesai">Selesai</option>
                         </select>
                     </div>
                 </div>
@@ -137,7 +132,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit Peserta</h5>
+                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit Event</h5>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form id="formEdit" action="" method="POST">
@@ -145,28 +140,26 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nama</label>
-                        <input type="text" name="nama" id="editNama" class="form-control">
+                        <label>Nama Event</label>
+                        <input type="text" name="nama_event" id="editNamaEvent" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Alamat</label>
-                        <textarea name="alamat" id="editAlamat" rows="3" class="form-control"></textarea>
+                        <label>Deskripsi</label>
+                        <textarea name="deskripsi" id="editDeskripsi" rows="3" class="form-control"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Jenis Kelamin</label>
-                        <select name="jk" id="editJk" class="form-control">
-                            <option value="">-- Pilih Jenis Kelamin --</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
-                        </select>
+                        <label>Tanggal</label>
+                        <input type="date" name="tanggal" id="editTanggal" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Event</label>
-                        <select name="event_id" id="editEventId" class="form-control">
-                            <option value="">-- Pilih Event --</option>
-                            @foreach($events as $event)
-                                <option value="{{ $event->id }}">{{ $event->nama_event }}</option>
-                            @endforeach
+                        <label>Lokasi</label>
+                        <input type="text" name="lokasi" id="editLokasi" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" id="editStatus" class="form-control">
+                            <option value="aktif">Aktif</option>
+                            <option value="selesai">Selesai</option>
                         </select>
                     </div>
                 </div>
@@ -184,11 +177,11 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title"><i class="fas fa-trash mr-2"></i>Hapus Peserta</h5>
+                <h5 class="modal-title"><i class="fas fa-trash mr-2"></i>Hapus Event</h5>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
-                <p>Yakin ingin menghapus peserta <strong id="hapusNama"></strong>?</p>
+                <p>Yakin ingin menghapus event <strong id="hapusNama"></strong>?</p>
             </div>
             <div class="modal-footer">
                 <form id="formHapus" action="" method="POST">
@@ -210,26 +203,27 @@
 <script src="{{ asset('js/demo/datatables-demo.js') }}"></script>
 <script>
     $(document).on('click', '.btn-edit', function () {
-        const id       = $(this).data('id');
-        const nama     = $(this).data('nama');
-        const alamat   = $(this).data('alamat');
-        const jk       = $(this).data('jk');
-        const event_id = $(this).data('event_id');
+    const id         = $(this).data('id');
+    const nama_event = $(this).data('nama_event');
+    const deskripsi  = $(this).data('deskripsi');
+    const tanggal    = $(this).data('tanggal');
+    const lokasi     = $(this).data('lokasi');
+    const status     = $(this).data('status');
 
-        $('#formEdit').attr('action', '/peserta/' + id);
-        $('#editNama').val(nama);
-        $('#editAlamat').val(alamat);
-        $('#editJk option').prop('selected', false);
-        $('#editJk option[value="' + jk + '"]').prop('selected', true);
-        $('#editEventId option').prop('selected', false);
-        $('#editEventId option[value="' + event_id + '"]').prop('selected', true);
+    $('#formEdit').attr('action', '/event/' + id);
+    $('#editNamaEvent').val(nama_event);
+    $('#editDeskripsi').val(deskripsi);
+    $('#editTanggal').val(tanggal);
+    $('#editLokasi').val(lokasi);
+    $('#editStatus option').prop('selected', false);
+    $('#editStatus option[value="' + status + '"]').prop('selected', true);
     });
 
     $(document).on('click', '.btn-hapus', function () {
         const id   = $(this).data('id');
         const nama = $(this).data('nama');
 
-        $('#formHapus').attr('action', '/peserta/' + id);
+        $('#formHapus').attr('action', '/event/' + id);
         $('#hapusNama').text(nama);
     });
 </script>
